@@ -21,6 +21,7 @@ public class MainForm extends JFrame {
 
 
     public Process mainProcess;
+    public List<String> vectorList = new ArrayList<>();
 
     public MainForm() {
         openFileButton.addActionListener(new ActionListener() {
@@ -44,12 +45,9 @@ public class MainForm extends JFrame {
                         bufferedReader.lines().forEach(System.out::println);
 
 
-
                         //Обучене
                         mainProcess = new DetermenicForMoreThanTwo(file);
                         mainProcess.study();
-
-
 
 
                         System.out.println("done");
@@ -87,9 +85,65 @@ public class MainForm extends JFrame {
 
             }
         });
+        buttonVectorFromFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+
+
+                    JFileChooser fc = new JFileChooser();
+                    fc.setDialogTitle("Выберите файл");
+                    int result = fc.showOpenDialog(panelMain);
+
+
+                    // Если считали файл
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        //Получам файл
+                        File file = fc.getSelectedFile();
+
+
+                        Scanner s = new Scanner(file);
+                        vectorList = new ArrayList<String>();
+                        while (s.hasNext()) {
+                            vectorList.add(s.nextLine());
+                        }
+                        s.close();
+
+                        doStudyList(vectorList);
+
+
+                    }
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
+    private void doStudyList(List<String> vectorList) {
+        for (String strVector : vectorList) {
 
+            String vector = strVector;
+            System.out.println(vector);
+            //textArea1.append(vector + "\n");
+            String[] stringMasVector = vector.replaceAll("\\s", " ").split(" ");
+            Double[] doubleVector = new Double[stringMasVector.length];
+            for (int i = 0; i < doubleVector.length; i++) {
+                doubleVector[i] = Double.parseDouble(stringMasVector[i].replace(',', '.'));
+            }
+
+            int maxClass = mainProcess.work(doubleVector);
+
+            if (maxClass == 0) {
+                System.out.println("Невозможно посчитать максимальный потенциал");
+            } else {
+                System.out.println("Входной вектор принадлежит " + maxClass + " классу");
+                textArea1.append("Входной вектор принадлежит " + maxClass + " классу\n");
+            }
+
+        }
+
+    }
 
 
     public static void main(String[] args) {
@@ -102,67 +156,6 @@ public class MainForm extends JFrame {
 
     }
 
-
-//    public Process doWork(File file) throws FileNotFoundException {
-//
-//        ///System.out.println("Детерменированный - D : Стохастический - S");
-//        ///Scanner in = new Scanner(System.in);
-//        ///System.out.println("Введите букву: ");
-//        String enter = "d";
-//        //закомментить, если надоест вводить в клавы
-//        ////System.out.println("Введите название файла");
-//        ////String nameFile = in.nextLine();
-//        ////File file = new File(nameFile);
-//        FileReader fileReader = new FileReader(file);
-//        BufferedReader bufferedReader = new BufferedReader(fileReader);
-//        bufferedReader.lines().forEach(System.out::println);
-////        File file = new File("testFormPresentation.txt");
-////        File file = new File("KM2.txt");
-////        File file = new File("Mx3.txt");
-////        File file = new File("test01.txt");
-//        //  System.out.println("Нажмите Q для выхода");
-//
-//
-//        if (enter.equals("D") || enter.equals("d")) {
-//            int howManyClasses = howManyClasses(file);
-//            if (howManyClasses > 2) {
-//
-//
-////
-////                System.out.println("Введите вектор значения вектора");
-////                while (true) {
-////
-////                    String vector = "ssss"; //in.nextLine();
-////                    String[] stringMasVector = vector.replaceAll("\\s", " ").split(" ");
-////                    Double[] doubleVector = new Double[stringMasVector.length];
-////                    for (int i = 0; i < doubleVector.length; i++) {
-////                        doubleVector[i] = Double.parseDouble(stringMasVector[i].replace(',', '.'));
-////                    }
-////                    process.work(doubleVector);
-////                    System.out.println("Введите вектор значения вектора");
-////                }
-//
-//
-//            } else return null;
-//        } else {
-//            Stohastic process = new Stohastic(file);
-//            process.study();
-////            while (true) {
-////                System.out.println("Введите вектор значения вектора");
-////                String vector = "sss";//in.nextLine();
-////                String[] stringMasVector = vector.replaceAll("\\s", " ").split(" ");
-////                Double[] doubleVector = new Double[stringMasVector.length];
-////                for (int i = 0; i < doubleVector.length; i++) {
-////                    //System.out.println(stringMasVector[i].replace(',', '.') + " -- ");
-////                    doubleVector[i] = Double.parseDouble(stringMasVector[i].replace(',', '.'));
-////                }
-////                process.work(doubleVector);
-////            }
-//            return process;
-//        }
-//
-//
-//    }
 
     public static int howManyClasses(File file) throws FileNotFoundException {
         Map<String, String> listClass = new HashMap<>();
